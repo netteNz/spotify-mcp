@@ -69,9 +69,13 @@ def save_track(uri: str) -> str:
 # --- Analytics Tools ---
 
 @mcp.tool()
-def get_audio_features(track_uris: list[str]) -> list:
-    """Get audio features (danceability, energy, etc.) for a list of tracks."""
-    return analytics.get_audio_features(track_uris)
+def get_audio_features(track_ids: list[str]) -> dict:
+    """
+    Get audio features for a list of track URIs or IDs.
+    Returns lean per-track shape: id, tempo, key, mode, energy, valence,
+    danceability, instrumentalness. Batches in groups of 100.
+    """
+    return analytics.get_audio_features(track_ids)
 
 @mcp.tool()
 def get_top_tracks(limit: int = 20, time_range: str = 'medium_term') -> dict:
@@ -95,6 +99,21 @@ def search_spotify(q: str, type: str = 'track,artist,album', limit: int = 20) ->
     `type` can be a comma-separated list of: track, artist, album, playlist
     """
     return search.search(q, type, limit)
+
+@mcp.tool()
+def search_track(query: str, limit: int = 10) -> dict:
+    """Search Spotify for tracks. Returns lean track dicts (id, uri, name, artist, album, duration_ms, popularity)."""
+    return search.search_track(query, limit)
+
+@mcp.tool()
+def search_artist(query: str, limit: int = 10) -> dict:
+    """Search Spotify for artists. Returns lean artist dicts (id, uri, name, genres, followers, popularity)."""
+    return search.search_artist(query, limit)
+
+@mcp.tool()
+def search_and_play(query: str, device_id: str = None) -> dict:
+    """Search for a track by query string and immediately play the top match on the active or specified device."""
+    return search.search_and_play(query, device_id)
 
 if __name__ == "__main__":
     mcp.run()
